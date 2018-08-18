@@ -4,10 +4,9 @@ object SEIR {
     paths: IndexedSeq[Path],
     exposureRate:  Float,
     infectionRate: Float,
-    recoveryRate:  Float,
-    timeSteps:     Int
+    recoveryRate:  Float
   ): Stream[World] = {
-    Stream.iterate(World(nodes, paths), timeSteps + 1) { world: World =>
+    Stream.iterate(World(nodes, paths)) { world: World =>
       for (here <- world) yield {
         val Populations(s, e, i, r) = here.populations
 
@@ -33,10 +32,10 @@ object SEIR {
             Populations(f * sO / n, f * eO / n, notQuarantined, f * rO / n + quarantined)
           }) . foldLeft(Populations.zero)(_+_)
 
-        val deltaS = -newlyExposed                                   - departureS + arrivalS
-        val deltaE =  newlyExposed - newlyInfected                   - departureE + arrivalE
-        val deltaI =                 newlyInfected  - newlyRecovered - departureI + arrivalI
-        val deltaR =                                  newlyRecovered - departureR + arrivalR
+        val deltaS = -newlyExposed                                  - departureS + arrivalS
+        val deltaE =  newlyExposed - newlyInfected                  - departureE + arrivalE
+        val deltaI =                 newlyInfected - newlyRecovered - departureI + arrivalI
+        val deltaR =                                 newlyRecovered - departureR + arrivalR
 
         Populations(s + deltaS, e + deltaE, i + deltaI, r + deltaR)
       }
