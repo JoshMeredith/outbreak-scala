@@ -14,7 +14,7 @@ object Benchmark {
   def benchSEIR(): () => World = {
     val nodes =
       for (i <- 0 until numNodes) yield
-        NodeData(Populations(10000, 0, 100, 0))
+        NodeData(SEIR.Populations(10000, 0, 100, 0))
 
     val paths =
       for (i <- 0 until numPaths) yield

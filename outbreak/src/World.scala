@@ -14,7 +14,7 @@ case class World(
 ) {
   def apply(i: Int): Node = Node(nodes(i), arrivals(i), departures(i), this)
 
-  def map(f: Node => Populations): World = {
+  def map(f: Node => SEIR.Populations): World = {
     val newNodes = nodes.zipWithIndex.map { case (n, i) =>
       val pops = f(Node(n, arrivals(i), departures(i), this))
       n.copy(populations = pops)
