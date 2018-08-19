@@ -20,7 +20,7 @@ object Benchmark {
       for (i <- 0 until numPaths) yield
         Path(i % numNodes, numNodes - (i % numNodes) - 1, IndexedSeq(), 0.3f, 100)
 
-    return { () => SEIR(nodes, paths, 0.1f, 0.1f, 0.1f)(181) }
+    () => SEIR.deterministic(nodes, paths, 0.1f, 0.1f, 0.1f)(181)
   }
 
 }

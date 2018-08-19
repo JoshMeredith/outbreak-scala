@@ -1,5 +1,5 @@
 object SEIR {
-  def apply(
+  def deterministic(
     nodes: IndexedSeq[NodeData],
     paths: IndexedSeq[Path],
     exposureRate:  Float,
@@ -32,12 +32,12 @@ object SEIR {
             Populations(f * sO / n, f * eO / n, notQuarantined, f * rO / n + quarantined)
           }) . foldLeft(Populations.zero)(_+_)
 
-        val deltaS = -newlyExposed                                  - departureS + arrivalS
-        val deltaE =  newlyExposed - newlyInfected                  - departureE + arrivalE
-        val deltaI =                 newlyInfected - newlyRecovered - departureI + arrivalI
-        val deltaR =                                 newlyRecovered - departureR + arrivalR
+        val dS = -newlyExposed                                  - departureS + arrivalS
+        val dE =  newlyExposed - newlyInfected                  - departureE + arrivalE
+        val dI =                 newlyInfected - newlyRecovered - departureI + arrivalI
+        val dR =                                 newlyRecovered - departureR + arrivalR
 
-        Populations(s + deltaS, e + deltaE, i + deltaI, r + deltaR)
+        Populations(s + dS, e + dE, i + dI, r + dR)
       }
     }
   }
