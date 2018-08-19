@@ -1,4 +1,6 @@
 object SEIR {
+  import Populations._
+
   def deterministic(
     nodes: IndexedSeq[Populations],
     paths: IndexedSeq[Path],
@@ -15,14 +17,14 @@ object SEIR {
         val newlyRecovered = recoveryRate * i
 
         val Populations(departureS, departureE, departureI, departureR) =
-          (for ((path, _) <- here.outgoing) yield {
+          sum(for ((path, _) <- here.outgoing) yield {
             val f = path.flow
             val n = here.data.total
             Populations(f * s / n, f * e / n, f * i / n, f * r / n)
-          }) . foldLeft(Populations.zero)(_+_)
+          })
 
         val Populations(arrivalS, arrivalE, arrivalI, arrivalR) =
-          (for ((path, origin) <- here.incoming) yield {
+          sum(for ((path, origin) <- here.incoming) yield {
             val f = path.flow
             val n = origin.data.total
             val Populations(sO, eO, iO, rO) = origin.data
@@ -30,7 +32,7 @@ object SEIR {
             val quarantined = infected * path.quarantineRate
             val notQuarantined = infected - quarantined
             Populations(f * sO / n, f * eO / n, notQuarantined, f * rO / n + quarantined)
-          }) . foldLeft(Populations.zero)(_+_)
+          })
 
         val dS = -newlyExposed                                  - departureS + arrivalS
         val dE =  newlyExposed - newlyInfected                  - departureE + arrivalE
@@ -48,7 +50,7 @@ object SEIR {
     infected:    Float,
     recovered:   Float
   ) {
-    val total: Float = susceptible + exposed + infected + recovered
+    lazy val total: Float = susceptible + exposed + infected + recovered
 
     def +(that: Populations): Populations = (this, that) match {
       case (Populations(s1, e1, i1, r1), Populations(s2, e2, i2, r2)) =>
@@ -58,5 +60,9 @@ object SEIR {
 
   object Populations {
     val zero: Populations = Populations(0, 0, 0, 0)
+
+    def sum(xs: Seq[Populations]): Populations = {
+      xs.foldLeft(zero)(_+_)
+    }
   }
 }
