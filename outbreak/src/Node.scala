@@ -1,15 +1,13 @@
-case class Node(
-  data:       NodeData,
+case class Node[n](
+  data:       n,
   arrivals:   Seq[Path],
   departures: Seq[Path],
-  world:      World
+  world:      World[n]
 ) {
-  def populations: SEIR.Populations = data.populations
-
-  def incoming: Seq[(Path, Node)] =
+  def incoming: Seq[(Path, Node[n])] =
     for (p <- arrivals  ) yield (p, world(p.origin))
 
-  def outgoing: Seq[(Path, Node)] =
+  def outgoing: Seq[(Path, Node[n])] =
     for (p <- departures) yield (p, world(p.destination))
 }
 
