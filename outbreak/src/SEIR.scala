@@ -9,7 +9,7 @@ object SEIR {
     recoveryRate:  Float
   ): Stream[World[Populations]] = {
     Stream.iterate(World(nodes, paths)) { world: World[Populations] =>
-      world.map { here =>
+      world.step { here =>
         val Populations(s, e, i, r) = here.data
 
         val newlyExposed   = exposureRate * i * s / here.data.total
@@ -17,14 +17,14 @@ object SEIR {
         val newlyRecovered = recoveryRate * i
 
         val Populations(departureS, departureE, departureI, departureR) =
-          sum(for ((path, _) <- here.outgoing) yield {
+          sum (here.outgoing.map { case (path, _) =>
             val f = path.flow
             val n = here.data.total
             Populations(f * s / n, f * e / n, f * i / n, f * r / n)
           })
 
         val Populations(arrivalS, arrivalE, arrivalI, arrivalR) =
-          sum(for ((path, origin) <- here.incoming) yield {
+          sum (here.incoming.map { case (path, origin) =>
             val f = path.flow
             val n = origin.data.total
             val Populations(sO, eO, iO, rO) = origin.data

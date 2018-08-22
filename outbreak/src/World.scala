@@ -14,7 +14,7 @@ case class World[n](
 ) {
   def apply(i: Int): Node[n] = Node[n](nodes(i), arrivals(i), departures(i), this)
 
-  def map(f: Node[n] => n): World[n] = {
+  def step(f: Node[n] => n): World[n] = {
     val newNodes = nodes.zipWithIndex.map { case (n, i) =>
       f(Node(n, arrivals(i), departures(i), this))
     }
