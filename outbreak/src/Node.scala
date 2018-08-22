@@ -11,10 +11,6 @@ case class Node[n](
     for (p <- departures) yield (p, world(p.destination))
 }
 
-case class NodeData(
-  populations: SEIR.Populations
-)
-
 case class Path(
   origin:         Int,
   destination:    Int,
