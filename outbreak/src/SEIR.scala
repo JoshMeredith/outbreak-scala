@@ -16,12 +16,9 @@ object SEIR {
         val newlyInfected  = infectionRate * e
         val newlyRecovered = recoveryRate * i
 
-        val Populations(departureS, departureE, departureI, departureR) =
-          sum (here.outgoing.map { case (path, _) =>
-            val f = path.flow
-            val n = here.data.total
-            Populations(f * s / n, f * e / n, f * i / n, f * r / n)
-          })
+        val fn = here.departures.totalFlow / here.data.total
+        val (departureS, departureE, departureI, departureR) =
+          (s * fn, e * fn, i * fn, r * fn)
 
         val Populations(arrivalS, arrivalE, arrivalI, arrivalR) =
           sum (here.incoming.map { case (path, origin) =>

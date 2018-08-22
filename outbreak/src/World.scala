@@ -1,7 +1,7 @@
 object World {
   def apply[n](nodes: IndexedSeq[n], paths: IndexedSeq[Path]): World[n] = {
-    val arrivals   = paths.groupBy(_.destination)
-    val departures = paths.groupBy(_.origin)
+    val arrivals   = paths.groupBy(_.destination).mapValues(Paths(_))
+    val departures = paths.groupBy(_.origin     ).mapValues(Paths(_))
 
     new World[n](nodes, arrivals, departures)
   }
@@ -9,8 +9,8 @@ object World {
 
 case class World[n](
   nodes:      IndexedSeq[n],
-  arrivals:   Map[Int, Seq[Path]],
-  departures: Map[Int, Seq[Path]]
+  arrivals:   Map[Int, Paths],
+  departures: Map[Int, Paths]
 ) {
   def apply(i: Int): Node[n] = Node[n](nodes(i), arrivals(i), departures(i), this)
 

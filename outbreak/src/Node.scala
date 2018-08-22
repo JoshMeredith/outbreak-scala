@@ -1,7 +1,7 @@
 case class Node[n](
   data:       n,
-  arrivals:   Seq[Path],
-  departures: Seq[Path],
+  arrivals:   Paths,
+  departures: Paths,
   world:      World[n]
 ) {
   def incoming: Seq[(Path, Node[n])] =
@@ -22,3 +22,12 @@ case class Path(
   quarantineRate: Float,
   flow:           Float
 )
+
+case class Paths(
+  paths: Seq[Path]
+) {
+  def map[a](f: Path => a): Seq[a] = paths.map(f)
+
+  lazy val totalFlow: Float =
+    paths.map{_.flow}.sum
+}
