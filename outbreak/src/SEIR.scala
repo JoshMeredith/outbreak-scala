@@ -2,13 +2,12 @@ object SEIR {
   import Populations._
 
   def deterministic(
-    nodes: IndexedSeq[Populations],
-    paths: IndexedSeq[Path],
+    world:         World[Populations],
     exposureRate:  Float,
     infectionRate: Float,
     recoveryRate:  Float
   ): Stream[World[Populations]] = {
-    Stream.iterate(World(nodes, paths)) { world: World[Populations] =>
+    Stream.iterate(world) { world: World[Populations] =>
       world.step { here =>
         val Populations(s, e, i, r) = here.data
 
