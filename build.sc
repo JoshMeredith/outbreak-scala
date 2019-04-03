@@ -33,3 +33,7 @@ object importData extends ScalaModule {
   def repositories = outbreakDatabase.repositories
   def ivyDeps = outbreakDatabase.ivyDeps
 }
+
+object agentModel extends ScalaModule {
+  def scalaVersion = scalaVer
+}
