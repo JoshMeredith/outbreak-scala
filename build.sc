@@ -2,8 +2,10 @@ import mill._
 import mill.scalalib._
 import coursier.maven.MavenRepository
 
+def scalaVersion = "2.12.8"
+
 object outbreak extends ScalaModule {
-  def scalaVersion = "2.12.8"
+  def scalaVersion = scalaVersion
   def moduleDeps = Seq(outbreakDatabase)
   def repositories = super.repositories ++ Seq(
     MavenRepository("https://oss.sonatype.org/content/repositories/snapshots")
@@ -14,7 +16,7 @@ object outbreak extends ScalaModule {
 }
 
 object outbreakDatabase extends ScalaModule {
-  def scalaVersion = "2.12.8"
+  def scalaVersion = scalaVersion
   def repositories = outbreak.repositories
   def ivyDeps = Agg(
     ivy"com.typesafe.slick::slick:3.3.0",
@@ -26,7 +28,7 @@ object outbreakDatabase extends ScalaModule {
 }
 
 object importData extends ScalaModule {
-  def scalaVersion = "2.12.8"
+  def scalaVersion = scalaVersion
   def moduleDeps = Seq(outbreakDatabase)
   def repositories = outbreakDatabase.repositories
   def ivyDeps = outbreakDatabase.ivyDeps
