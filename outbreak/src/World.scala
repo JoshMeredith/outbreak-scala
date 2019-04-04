@@ -1,5 +1,9 @@
 import scala.collection.parallel.mutable._
-import java.time._
+import java.time.{LocalDate}
+import slick.jdbc.H2Profile.api._
+import scala.concurrent._
+import scala.concurrent.duration._
+import slick.jdbc.H2Profile.backend.{DatabaseDef}
 
 object World {
   def apply[n](nodes: IndexedSeq[n], paths: IndexedSeq[(Int, Path)]): World[n] = {
@@ -19,6 +23,25 @@ object World {
       (0 until nodes.length).toVector.map( i => departures(m + 1, i) ))
 
     new World[n](nodes, arrivalsV, departuresV, LocalDate.of(2009, 6, 1))
+  }
+
+  def load[t](f: (String, Int) => t): World[t] = {
+    def join[T](future: Future[T]): T = Await.result(future, Duration.Inf)
+    def query[T,Q](db: DatabaseDef, q: Query[Q, T, Seq]) = join(db.run(q.result)).toSeq
+
+    val db = Database.forURL("jdbc:sqlite:network.db", driver="org.sqlite.JDBC")
+
+    var airports = query(db, Network.airports.map(x => (x.code, x.clusterCode, x.population))).toIndexedSeq
+
+    var pathsIn = query(db, Network.paths.map(x => (x.flow, x.origin, x.destination, x.month))).toIndexedSeq
+
+    var codes    = airports.filter(x => x._1 == x._2).map(_._1).zipWithIndex.toMap
+    var inPops   = airports.filter(x => x._1 == x._2).map(x => f(x._2, x._3))
+    var clusters = airports.map(x => (x._1 -> x._2)).toMap
+
+    var paths    = pathsIn.map(x => (x._4, Path(codes(clusters(x._2)), codes(clusters(x._3)), IndexedSeq(), 0, x._1)))
+
+    World(inPops, paths)
   }
 }
 
