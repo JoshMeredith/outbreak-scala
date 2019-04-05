@@ -28,7 +28,7 @@ object Benchmark {
   }
 
   def sensitivity() = {
-    var w = World.load[SEIR.Populations]{ (code, pop) => SEIR.Populations(pop, if (code == "BOS") 100 else 0, 0, 0) }
+    var w = World.load.reconfigure{ case (code, pop) => SEIR.Populations(pop, if (code == "BOS") 100 else 0, 0, 0) }
 
     var pops = for (c <- 0 to 100 map (_.toFloat / 100)) yield {
       print(c + "\n")

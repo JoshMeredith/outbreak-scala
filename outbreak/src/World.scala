@@ -25,7 +25,7 @@ object World {
     new World[n](nodes, arrivalsV, departuresV, LocalDate.of(2009, 6, 1))
   }
 
-  def load[t](f: (String, Int) => t): World[t] = {
+  def load(): World[(String, Int)] = {
     def join[T](future: Future[T]): T = Await.result(future, Duration.Inf)
     def query[T,Q](db: DatabaseDef, q: Query[Q, T, Seq]) = join(db.run(q.result)).toSeq
 
@@ -36,7 +36,7 @@ object World {
     var pathsIn = query(db, Network.paths.map(x => (x.flow, x.origin, x.destination, x.month))).toIndexedSeq
 
     var codes    = airports.filter(x => x._1 == x._2).map(_._1).zipWithIndex.toMap
-    var inPops   = airports.filter(x => x._1 == x._2).map(x => f(x._2, x._3))
+    var inPops   = airports.filter(x => x._1 == x._2).map(x => (x._2, x._3))
     var clusters = airports.map(x => (x._1 -> x._2)).toMap
 
     var paths    = pathsIn.map(x => (x._4, Path(codes(clusters(x._2)), codes(clusters(x._3)), IndexedSeq(), 0, x._1)))
