@@ -62,4 +62,8 @@ case class World[n](
     }
     this.copy(nodes = newNodes.toVector, date = date.plusDays(1))
   }
+
+  def reconfigure[a](f: n => a): World[a] = {
+    this.copy(nodes = nodes.map(f))
+  }
 }
