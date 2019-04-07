@@ -37,3 +37,9 @@ object importData extends ScalaModule {
 object agentModel extends ScalaModule {
   def scalaVersion = scalaVer
 }
+
+object sensitivity extends ScalaModule {
+  def scalaVersion = scalaVer
+  def repositories = outbreak.repositories
+  def moduleDeps = Seq(outbreak)
+}
