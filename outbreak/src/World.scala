@@ -39,7 +39,7 @@ object World {
     var inPops   = airports.filter(x => x._1 == x._2).map(x => (x._2, x._3))
     var clusters = airports.map(x => (x._1 -> x._2)).toMap
 
-    var paths    = pathsIn.map(x => (x._4, Path(codes(clusters(x._2)), codes(clusters(x._3)), IndexedSeq(), 0, x._1)))
+    var paths    = pathsIn.map(x => (x._4, Path(codes(clusters(x._2)), codes(clusters(x._3)), IndexedSeq(), x._1)))
 
     World(inPops, paths)
   }

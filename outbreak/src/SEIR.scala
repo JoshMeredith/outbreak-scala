@@ -25,7 +25,7 @@ object SEIR {
             val n = origin.data.total
             val Populations(sO, eO, iO, rO) = origin.data
             val infected = f * iO / n
-            val quarantined = infected * path.quarantineRate
+            val quarantined = infected * 0
             val notQuarantined = infected - quarantined
             Populations(f * sO / n, f * eO / n, notQuarantined, f * rO / n + quarantined)
           })
