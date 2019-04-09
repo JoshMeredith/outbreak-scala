@@ -1,29 +1,32 @@
 object SEIR {
   import Populations._
 
-  def deterministic(
-    world:         World[Populations],
-    exposureRate:  Float,
+  case class Rates(
+    exposureRate: Float,
     infectionRate: Float,
-    recoveryRate:  Float
-  ): Stream[World[Populations]] = {
-    Stream.iterate(world) { world: World[Populations] =>
+    recoveryRate: Float
+  )
+
+  def deterministic(
+    world: World[(Populations, Rates)]
+  ): Stream[World[(Populations, Rates)]] = {
+    Stream.iterate(world) { world: World[(Populations, Rates)] =>
       world.step { here =>
-        val Populations(s, e, i, r) = here.data
+        val (Populations(s, e, i, r), rates) = here.data
 
-        val newlyExposed   = exposureRate * i * s / here.data.total
-        val newlyInfected  = infectionRate * e
-        val newlyRecovered = recoveryRate * i
+        val newlyExposed   = rates.exposureRate * i * s / here.data._1.total
+        val newlyInfected  = rates.infectionRate * e
+        val newlyRecovered = rates.recoveryRate * i
 
-        val fn = here.departures.totalFlow / here.data.total
+        val fn = here.departures.totalFlow / here.data._1.total
         val (departureS, departureE, departureI, departureR) =
           (s * fn, e * fn, i * fn, r * fn)
 
         val Populations(arrivalS, arrivalE, arrivalI, arrivalR) =
           sum (here.incoming.map { case (path, origin) =>
             val f = path.flow
-            val n = origin.data.total
-            val Populations(sO, eO, iO, rO) = origin.data
+            val n = origin.data._1.total
+            val Populations(sO, eO, iO, rO) = origin.data._1
             val infected = f * iO / n
             val quarantined = infected * 0
             val notQuarantined = infected - quarantined
@@ -35,7 +38,7 @@ object SEIR {
         val dI =                 newlyInfected - newlyRecovered - departureI + arrivalI
         val dR =                                 newlyRecovered - departureR + arrivalR
 
-        Populations(s + dS, e + dE, i + dI, r + dR)
+        (Populations(s + dS, e + dE, i + dI, r + dR), rates)
       }
     }
   }
