@@ -43,3 +43,9 @@ object sensitivity extends ScalaModule {
   def repositories = outbreak.repositories
   def moduleDeps = Seq(outbreak)
 }
+
+object gradientDescent extends ScalaModule {
+  def scalaVersion = scalaVer
+  def repositories = outbreak.repositories
+  def moduleDeps = Seq(outbreak)
+}
