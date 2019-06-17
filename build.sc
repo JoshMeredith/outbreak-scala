@@ -19,10 +19,10 @@ object outbreakDatabase extends ScalaModule {
   def scalaVersion = scalaVer
   def repositories = outbreak.repositories
   def ivyDeps = Agg(
-    ivy"com.typesafe.slick::slick:3.3.0",
+    ivy"com.typesafe.slick::slick:3.3.2",
     ivy"org.slf4j:slf4j-nop:1.6.4",
-    ivy"com.typesafe.slick::slick-hikaricp:3.2.3",
-    ivy"com.nrinaudo::kantan.csv:0.4.0",
+    ivy"com.typesafe.slick::slick-hikaricp:3.3.2",
+    ivy"com.nrinaudo::kantan.csv:0.5.1",
     ivy"org.xerial:sqlite-jdbc:3.7.2"
   )
 }
