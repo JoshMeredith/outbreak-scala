@@ -1,6 +1,8 @@
 object SEIR {
   import Populations._
 
+  def apply(s: Float, e: Float, i: Float, r: Float) = Populations(s, e, i, r)
+
   case class Rates(
     exposureRate: Float,
     infectionRate: Float,
@@ -54,6 +56,10 @@ object SEIR {
     def +(that: Populations): Populations = (this, that) match {
       case (Populations(s1, e1, i1, r1), Populations(s2, e2, i2, r2)) =>
         Populations(s1 + s2, e1 + e2, i1 + i2, r1 + r2)
+    }
+
+    def apply(s: Float, e: Float, i: Float, r: Float) = {
+      SEIR(susceptible + s, exposed + e, infected + i, recovered + r)
     }
   }
 

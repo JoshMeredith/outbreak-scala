@@ -10,7 +10,7 @@ object Sensitivity {
 
   def sensitivity = {
     var w = World.load.reconfigure{ case (code, pop) => (
-      SEIR.Populations(pop, if (code == "BOS") 100 else 0, 0, 0),
+      SEIR.Populations(if (code == "BOS") pop - 100 else pop, if (code == "BOS") 100 else 0, 0, 0),
       SEIR.Rates(0.25f, 0.25f, 1.0f/7.0f)
     )}
 
