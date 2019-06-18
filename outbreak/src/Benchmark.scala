@@ -7,15 +7,15 @@ object Benchmark {
   def main(args: Array[String]): Unit = {
     val th = new ichi.bench.Thyme
 
-    val b: () => World[(SEIR.Populations, SEIR.Rates)] = benchSEIR
+    val b: () => World[SEIR] = benchSEIR
 
     th.pbench(b())
   }
 
-  def benchSEIR: () => World[(SEIR.Populations, SEIR.Rates)] = {
+  def benchSEIR: () => World[SEIR] = {
     val nodes =
       for (i <- 0 until numNodes) yield
-        (SEIR.Populations(1000000, 0, 100, 0), SEIR.Rates(0.1f, 0.1f, 0.1f))
+        (SEIR(1000000, 0, 100, 0, 0.1f, 0.1f, 0.1f))
 
     val paths =
       for (m <- 1 to 12; i <- 0 until numPaths) yield

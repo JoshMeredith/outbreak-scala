@@ -1,73 +1,60 @@
 object SEIR {
-  import Populations._
 
-  def apply(s: Float, e: Float, i: Float, r: Float) = Populations(s, e, i, r)
-
-  case class Rates(
-    exposureRate: Float,
-    infectionRate: Float,
-    recoveryRate: Float
-  )
+  object Pops{
+    def unapply(pop: SEIR): Option[(Float, Float, Float, Float)] = {
+      Some((pop.susceptible, pop.exposed, pop.infected, pop.recovered))
+    }
+  }
 
   def deterministic(
-    world: World[(Populations, Rates)]
-  ): Stream[World[(Populations, Rates)]] = {
-    Stream.iterate(world) { world: World[(Populations, Rates)] =>
+    world: World[SEIR]
+  ): Stream[World[SEIR]] = {
+    Stream.iterate(world) { world: World[SEIR] =>
       world.step { here =>
-        val (Populations(s, e, i, r), rates) = here.data
+        val Pops(s, e, i, r) = here.data
 
-        val newlyExposed   = rates.exposureRate * i * s / here.data._1.total
-        val newlyInfected  = rates.infectionRate * e
-        val newlyRecovered = rates.recoveryRate * i
+        val newlyExposed   = here.data.exposureRate * i * s / here.data.total
+        val newlyInfected  = here.data.infectionRate * e
+        val newlyRecovered = here.data.recoveryRate * i
 
-        val fn = here.departures.totalFlow / here.data._1.total
+        val fn = here.departures.totalFlow / here.data.total
         val (departureS, departureE, departureI, departureR) =
           (s * fn, e * fn, i * fn, r * fn)
 
-        val Populations(arrivalS, arrivalE, arrivalI, arrivalR) =
-          sum (here.incoming.map { case (path, origin) =>
+        val (arrivalS, arrivalE, arrivalI, arrivalR) =
+          here.incoming.foldLeft((0f,0f,0f,0f)) { case ((sA, eA, iA, rA), (path, origin)) =>
             val f = path.flow
-            val n = origin.data._1.total
-            val Populations(sO, eO, iO, rO) = origin.data._1
+            val n = origin.data.total
+            val Pops(sO, eO, iO, rO) = origin.data
             val infected = f * iO / n
-            val quarantined = infected * 0
+            val quarantined = infected * 0f
             val notQuarantined = infected - quarantined
-            Populations(f * sO / n, f * eO / n, notQuarantined, f * rO / n + quarantined)
-          })
+            (sA + f * sO / n, eA + f * eO / n, iA + notQuarantined, rA + f * rO / n + quarantined)
+          }
 
         val dS = -newlyExposed                                  - departureS + arrivalS
         val dE =  newlyExposed - newlyInfected                  - departureE + arrivalE
         val dI =                 newlyInfected - newlyRecovered - departureI + arrivalI
         val dR =                                 newlyRecovered - departureR + arrivalR
 
-        (Populations(s + dS, e + dE, i + dI, r + dR), rates)
+        here.data(dS, dE, dI, dR)
       }
     }
   }
+}
 
-  case class Populations(
-    susceptible: Float,
-    exposed:     Float,
-    infected:    Float,
-    recovered:   Float
-  ) {
-    lazy val total: Float = susceptible + exposed + infected + recovered
+case class SEIR(
+  susceptible:   Float,
+  exposed:       Float,
+  infected:      Float,
+  recovered:     Float,
+  exposureRate:  Float,
+  infectionRate: Float,
+  recoveryRate:  Float
+) {
+  lazy val total: Float = susceptible + exposed + infected + recovered
 
-    def +(that: Populations): Populations = (this, that) match {
-      case (Populations(s1, e1, i1, r1), Populations(s2, e2, i2, r2)) =>
-        Populations(s1 + s2, e1 + e2, i1 + i2, r1 + r2)
-    }
-
-    def apply(s: Float, e: Float, i: Float, r: Float) = {
-      SEIR(susceptible + s, exposed + e, infected + i, recovered + r)
-    }
-  }
-
-  object Populations {
-    val zero: Populations = Populations(0, 0, 0, 0)
-
-    def sum(xs: Seq[Populations]): Populations = {
-      xs.foldLeft(zero)(_+_)
-    }
+  def apply(s: Float, e: Float, i: Float, r: Float): SEIR = {
+    this.copy(susceptible + s, exposed + e, infected + i, recovered + r)
   }
 }

@@ -12,13 +12,11 @@ object GradientDescent {
 
     val uncontrolledWorld = w.reconfigure{ case (code, pop) => {
       val origin = if (code == "BOS") 100 else 0
-      ( SEIR.Populations(pop - origin, origin, 0, 0)
-      , SEIR.Rates(0.25f, 0.25f, 1.0f/7.0f)
-      )
+      SEIR(pop - origin, origin, 0, 0, 0.25f, 0.25f, 1.0f/7.0f)
     }}
 
     val baseline = SEIR.deterministic(uncontrolledWorld)(180).nodes
-                       .map(x => x._1.exposed + x._1.infected + x._1.recovered).sum
+                       .map(x => x.exposed + x.infected + x.recovered).sum
 
     print("Baseline calculated.\n")
 
@@ -26,13 +24,11 @@ object GradientDescent {
       val world = w.reconfigure{ case (code, pop) => {
         val origin     = if (code == "BOS"            ) 100f else 0f
         val vaccinated = if ((largeCities contains code) && (code == c)) units else 0f
-        ( SEIR.Populations(pop - origin - vaccinated, origin, 0f, vaccinated)
-        , SEIR.Rates(0.25f, 0.25f, 1.0f/7.0f)
-        )
+        SEIR(pop - origin - vaccinated, origin, 0f, vaccinated, 0.25f, 0.25f, 1.0f/7.0f)
       }}
 
       val infection = SEIR.deterministic(world)(180).nodes
-                          .map(x => x._1.exposed + x._1.infected + x._1.recovered).sum
+                          .map(x => x.exposed + x.infected + x.recovered).sum
 
       print((baseline + units, infection))
 
@@ -55,9 +51,8 @@ object GradientDescent {
 
     val controlledWorld = w.reconfigure{ case (code, pop) => {
       val origin = if (code == "BOS") 100 else 0
-      ( SEIR.Populations(Math.max(pop - origin - vaccines(code), 0), origin, 0, Math.min(pop - origin, vaccines(code)))
-      , SEIR.Rates(0.25f, 0.25f, 1.0f/7.0f)
-      )
+      SEIR( Math.max(pop - origin - vaccines(code), 0), origin, 0, Math.min(pop - origin, vaccines(code))
+          , 0.25f, 0.25f, 1.0f/7.0f )
     }}
 
     // val controlledWorld = w.reconfigure{ case (code, pop) => {
@@ -68,10 +63,10 @@ object GradientDescent {
     //       )
     // }}
 
-    val allocatedVaccines = controlledWorld.nodes.map(x => x._1.recovered).sum
+    val allocatedVaccines = controlledWorld.nodes.map(x => x.recovered).sum
 
     val controlled = SEIR.deterministic(controlledWorld)(180).nodes
-                         .map(x => x._1.exposed + x._1.infected + x._1.recovered).sum
+                         .map(x => x.exposed + x.infected + x.recovered).sum
 
     print("Controlled calculated.\n")
 
